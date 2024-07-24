@@ -99,6 +99,45 @@ function exportToJson() {
   URL.revokeObjectURL(url);
 }
 
+const SERVER_URL = 'https://jsonplaceholder.typicode.com/posts'; // Mock API URL
+
+// Function to fetch quotes from the server
+async function fetchQuotesFromServer() {
+  try {
+    const response = await fetch(SERVER_URL);
+    const serverQuotes = await response.json();
+    // Assume server returns an array of quote objects with 'text' and 'category' properties
+    return serverQuotes.map(quote => ({
+      text: quote.title, // Using 'title' as 'text' for simulation
+      category: quote.body // Using 'body' as 'category' for simulation
+    }));
+  } catch (error) {
+    console.error('Error fetching quotes from server:', error);
+    return [];
+  }
+}
+
+// Function to post a new quote to the server
+async function postQuoteToServer(quote) {
+  try {
+    const response = await fetch(SERVER_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title: quote.text, // Using 'title' as 'text' for simulation
+        body: quote.category // Using 'body' as 'category' for simulation
+      })
+    });
+    return response.ok;
+  } catch (error) {
+    console.error('Error posting quote to server:', error);
+    return false;
+  }
+}
+
+
 // Function to import quotes from JSON file
 function importFromJsonFile(event) {
   const fileReader = new FileReader();
@@ -138,3 +177,108 @@ populateCategories();
 
 // Filter quotes on initial load
 filterQuotes();
+
+
+// Function to notify users about updates or conflicts
+function notifyUser(message) {
+  alert(message); // Simple alert for demonstration
+}
+
+// Enhanced sync function with conflict resolution notification
+async function syncQuotesWithServer() {
+  const serverQuotes = await fetchQuotesFromServer();
+  const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+
+  // Detect conflicts and resolve them by prioritizing server quotes
+  const conflictingQuotes = localQuotes.filter(localQuote =>
+    serverQuotes.some(serverQuote => serverQuote.text === localQuote.text && serverQuote.category !== localQuote.category)
+  );
+
+  if (conflictingQuotes.length > 0) {
+    notifyUser('Conflicts detected. Server data takes precedence.');
+  }
+
+  // Merge server and local quotes, prioritizing server quotes
+  const mergedQuotes = [...serverQuotes, ...localQuotes.filter(localQuote =>
+    !serverQuotes.some(serverQuote => serverQuote.text === localQuote.text && serverQuote.category === localQuote.category)
+  )];
+
+  // Update local storage with merged quotes
+  localStorage.setItem('quotes', JSON.stringify(mergedQuotes));
+  quotes = mergedQuotes;
+  populateCategories();
+  filterQuotes();
+}
+
+// Enhanced addQuote function with conflict resolution notification
+async function addQuote() {
+  const newQuoteText = document.getElementById('newQuoteText').value;
+  const newQuoteCategory = document.getElementById('newQuoteCategory').value;
+
+  if (newQuoteText && newQuoteCategory) {
+    const newQuote = { text: newQuoteText, category: newQuoteCategory };
+    quotes.push(newQuote);
+    document.getElementById('newQuoteText').value = '';
+    document.getElementById('newQuoteCategory').value = '';
+    saveQuotes();
+    populateCategories();
+
+    // Sync new quote with server
+    const success = await postQuoteToServer(newQuote);
+    if (success) {
+      notifyUser('New quote added and synced with server!');
+    } else {
+      notifyUser('New quote added locally, but failed to sync with server.');
+    }
+  } else {
+    notifyUser('Please enter both quote text and category.');
+  }
+}
+
+// Function to sync quotes with the server
+async function syncQuotesWithServer() {
+  const serverQuotes = await fetchQuotesFromServer();
+  const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+  
+  // Merge server and local quotes, prioritizing server quotes
+  const mergedQuotes = [...serverQuotes, ...localQuotes.filter(localQuote => 
+    !serverQuotes.some(serverQuote => serverQuote.text === localQuote.text && serverQuote.category === localQuote.category)
+  )];
+
+  // Update local storage with merged quotes
+  localStorage.setItem('quotes', JSON.stringify(mergedQuotes));
+  quotes = mergedQuotes;
+  populateCategories();
+  filterQuotes();
+}
+
+// Periodically sync with the server every 5 minutes
+setInterval(syncQuotesWithServer, 300000); // 300,000 milliseconds = 5 minutes
+
+// Function to add a new quote and sync with the server
+async function addQuote() {
+  const newQuoteText = document.getElementById('newQuoteText').value;
+  const newQuoteCategory = document.getElementById('newQuoteCategory').value;
+
+  if (newQuoteText && newQuoteCategory) {
+    const newQuote = { text: newQuoteText, category: newQuoteCategory };
+    quotes.push(newQuote);
+    document.getElementById('newQuoteText').value = '';
+    document.getElementById('newQuoteCategory').value = '';
+    saveQuotes();
+    populateCategories();
+
+    // Sync new quote with server
+    const success = await postQuoteToServer(newQuote);
+    if (success) {
+      alert('New quote added and synced with server!');
+    } else {
+      alert('New quote added locally, but failed to sync with server.');
+    }
+  } else {
+    alert('Please enter both quote text and category.');
+  }
+}
+
+// Initial sync with the server
+syncQuotesWithServer();
