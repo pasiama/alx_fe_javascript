@@ -26,7 +26,7 @@ function showRandomQuote() {
   const filteredQuotes = getFilteredQuotes();
   const randomIndex = Math.floor(Math.random() * filteredQuotes.length);
   const quote = filteredQuotes[randomIndex];
-  document.getElementById('quoteDisplay').innerText = `"${quote.text}" - ${quote.category}`;
+  document.getElementById('quoteDisplay').textContent = `"${quote.text}" - ${quote.category}`;
   sessionStorage.setItem('lastQuote', JSON.stringify(quote)); // Save last viewed quote in session storage
 }
 
@@ -63,7 +63,7 @@ function filterQuotes() {
   quoteDisplay.innerHTML = ''; // Clear current quotes
   filteredQuotes.forEach(quote => {
     const quoteElement = document.createElement('div');
-    quoteElement.innerText = `"${quote.text}" - ${quote.category}`;
+    quoteElement.textContent = `"${quote.text}" - ${quote.category}`;
     quoteDisplay.appendChild(quoteElement);
   });
   localStorage.setItem('selectedCategory', document.getElementById('categoryFilter').value);
@@ -77,7 +77,7 @@ function populateCategories() {
   categories.forEach(category => {
     const option = document.createElement('option');
     option.value = category;
-    option.innerText = category;
+    option.textContent = category;
     categoryFilter.appendChild(option);
   });
 
@@ -169,7 +169,7 @@ loadQuotes();
 // Load last viewed quote from session storage
 const lastQuote = JSON.parse(sessionStorage.getItem('lastQuote'));
 if (lastQuote) {
-  document.getElementById('quoteDisplay').innerText = `"${lastQuote.text}" - ${lastQuote.category}`;
+  document.getElementById('quoteDisplay').textContent = `"${lastQuote.text}" - ${lastQuote.category}`;
 }
 
 // Populate categories on initial load
