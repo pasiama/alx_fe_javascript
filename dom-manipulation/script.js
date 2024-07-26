@@ -208,6 +208,7 @@ async function syncQuotesWithServer() {
   quotes = mergedQuotes;
   populateCategories();
   filterQuotes();
+  notifyUser("Quotes synced with server!"); // Notification message for successful sync
 }
 
 // Enhanced addQuote function with conflict resolution notification
