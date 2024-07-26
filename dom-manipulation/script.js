@@ -31,7 +31,7 @@ function showRandomQuote() {
 }
 
 // Function to add a new quote
-function addQuote() {
+function createAddQuoteForm() {
   const newQuoteText = document.getElementById('newQuoteText').value;
   const newQuoteCategory = document.getElementById('newQuoteCategory').value;
 
@@ -211,7 +211,7 @@ async function syncQuotesWithServer() {
 }
 
 // Enhanced addQuote function with conflict resolution notification
-async function addQuote() {
+async function createAddQuoteForm() {
   const newQuoteText = document.getElementById('newQuoteText').value;
   const newQuoteCategory = document.getElementById('newQuoteCategory').value;
 
@@ -256,7 +256,7 @@ async function syncQuotesWithServer() {
 setInterval(syncQuotesWithServer, 300000); // 300,000 milliseconds = 5 minutes
 
 // Function to add a new quote and sync with the server
-async function addQuote() {
+async function createAddQuoteForm() {
   const newQuoteText = document.getElementById('newQuoteText').value;
   const newQuoteCategory = document.getElementById('newQuoteCategory').value;
 
